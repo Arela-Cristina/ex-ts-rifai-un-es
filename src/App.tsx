@@ -1,27 +1,27 @@
 import './App.css'
+import { useEffect, useState } from 'react';
+
+
+type Character = {
+  id: number;
+  name: string;
+  image: string;
+  species: string;
+  status: string;
+
+}
+
+type ApiResponse = {
+  info: {
+    count: number;
+    pages: number;
+    next: string | null;
+    prev: string | null;
+  };
+  results: Character[];
+};
 
 function App() {
-
-  type Character = {
-    id: number;
-    name: string;
-    image: string;
-    species: string;
-    status: string;
-
-  }
-
-  type ApiResponse = {
-    info: {
-      count: number;
-      pages: number;
-      next: string | null;
-      prev: string | null;
-    };
-    results: Character[];
-  };
-
-
 
   async function fetchCharacters(): Promise<Character[]> {
     try {
@@ -47,12 +47,23 @@ function App() {
 
   }
 
-  fetchCharacters()
+
+  const [character, setCharacter] = useState<Character | null>(null)
+
+  const [query, setQuery] = useState('')
+  console.log(query)
+
+  useEffect(() => {
+    fetchCharacters()
+  }, [])
 
 
   return (
     <>
-      <div>Hello </div>
+      <input
+        type="text"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)} />
     </>
   )
 }
