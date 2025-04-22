@@ -2,34 +2,40 @@ import './App.css'
 
 function App() {
 
-  type Politicians = {
-    id: number,
-    name: string,
-    age: number,
-    username: string,
-    email: string,
-    adress: {
-      street: string,
-      city: string,
-      zip: number
-    },
-    phone: string,
-    website: string,
-    ocupation: string,
-    hobbies: string[],
+  type Character = {
+    id: number;
+    name: string;
+    image: string;
+    species: string;
+    status: string;
 
   }
 
+  type ApiResponse = {
+    info: {
+      count: number;
+      pages: number;
+      next: string | null;
+      prev: string | null;
+    };
+    results: Character[];
+  };
 
-  async function fetchPoliticians(): Promise<Politicians[]> {
+
+
+  async function fetchCharacters(): Promise<Character[]> {
     try {
 
-      const data = await fetch(`https://boolean-spec-frontend.vercel.app/freetestapi/users`);
+      const data = await fetch(`https://rickandmortyapi.com/api/character`);
+
       if (!data.ok) {
         throw new Error(`Errore nella chiamata`)
       }
-      const response: Politicians[] = await data.json()
-      return response
+      const response: ApiResponse = await data.json()
+      const characters: Character[] = response.results
+      console.log('response', characters)
+      return characters
+
     }
     catch (error) {
       if (error instanceof Error) {
@@ -40,6 +46,8 @@ function App() {
     }
 
   }
+
+  fetchCharacters()
 
 
   return (
