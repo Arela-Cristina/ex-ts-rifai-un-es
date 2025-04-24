@@ -1,5 +1,7 @@
 import './App.css'
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
+import Card from "./components/Card"
+import SearchForm from './components/SearchForm';
 
 
 type Character = {
@@ -23,7 +25,12 @@ type ApiResponse = {
 
 function App() {
 
-  async function fetchCharacters(): Promise<Character[]> {
+  const [character, setCharacter] = useState<Character[]>([])
+
+  const [query, setQuery] = useState('')
+  // console.log(query)
+
+  async function fetchCharacters(): Promise<void> {
     try {
 
       const data = await fetch(`https://rickandmortyapi.com/api/character`);
@@ -33,8 +40,8 @@ function App() {
       }
       const response: ApiResponse = await data.json()
       const characters: Character[] = response.results
-      console.log('response', characters)
-      return characters
+      // console.log('response', characters)
+      setCharacter(characters)
 
     }
     catch (error) {
@@ -42,16 +49,21 @@ function App() {
         console.log(error.message)
       }
       console.error(error)
-      return []
+
     }
 
   }
 
+  const filteredElements = useMemo(() => character.filter(el =>
+    el.name.toLowerCase().includes(query.toLowerCase()) ||
+    el.species.toLowerCase().includes(query.toLowerCase())
 
-  const [character, setCharacter] = useState<Character | null>(null)
+  ), [character, query])
 
-  const [query, setQuery] = useState('')
-  console.log(query)
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  }, []);
 
   useEffect(() => {
     fetchCharacters()
@@ -60,10 +72,22 @@ function App() {
 
   return (
     <>
-      <input
-        type="text"
+      <SearchForm
         value={query}
-        onChange={(e) => setQuery(e.target.value)} />
+        onChange={handleSearchChange}
+      />
+
+      <section>
+        {filteredElements.map(el =>
+          <Card
+            key={el.id}
+            id={el.id}
+            image={el.image}
+            name={el.name}
+            species={el.species}
+            status={el.status} />
+        )}
+      </section>
     </>
   )
 }
